@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import './App.css';
+import '../assets/styles/App.css';
 import Button from '@material-ui/core/Button';
-import Task from './task.model';
-import { AppBar, Toolbar, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, Chip, InputAdornment, Grid } from '@material-ui/core';
+import Task from '../models/task.model';
+import { AppBar, Toolbar, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Table, TableRow, TableBody, IconButton, Chip, InputAdornment, Grid, TableHead, TableCell } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
@@ -14,22 +14,43 @@ class App extends Component {
     open: false,
     edit: false,
     event: null,
+
     description: '',
     time: new Date().toISOString().substring(0, 16),
     during: new Date().toISOString().substring(0, 16),
     reminder: new Date().toISOString().substring(0, 16),
     tag: '',
     tags: [],
-    events: [{
-      id: 1,
-      description: "Teste de descrição",
-      time: new Date(),
-      during: new Date(),
-      reminder: new Date(),
-      created: new Date(),
-      tags: []
-    }]
+
+    events: []
   };
+
+  componentDidMount() {
+    fetch("https://5c9299d2e7b1a00014078e33.mockapi.io/api/events")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          result.map(event => {
+            event.time = new Date(event.time * 1000);
+            event.during = new Date(event.during * 1000);
+            event.reminder = new Date(event.reminder * 1000);
+            event.created = new Date(event.created * 1000);
+          })
+          this.setState({
+            events: result
+          });
+        },
+        // Note: it's important to handle errors here
+        // instead of a catch() block so that we don't swallow
+        // exceptions from actual bugs in components.
+        (error) => {
+          this.setState({
+            isLoaded: true,
+            error
+          });
+        }
+      )
+  }
 
   handleChange = prop => event => {
     this.setState({ [prop]: event.target.value });
@@ -67,14 +88,18 @@ class App extends Component {
     this.setState({ open: false, edit: false });
   };
 
-  handleCreate = () => {
+  getFieldData = () => {
     let task = new Task();
     task.description = this.state.description;
     task.time = new Date(this.state.time);
     task.during = new Date(this.state.during);
     task.reminder = new Date(this.state.reminder);
     task.tags = this.state.tags;
-    this.state.events.push(task);
+    return task;
+  }
+
+  handleCreate = () => {
+    this.state.events.push(this.getFieldData());
     this.setState({ open: false });
   };
 
@@ -83,13 +108,7 @@ class App extends Component {
     let eventIndex = this.state.events.findIndex(task => task === this.state.event);
 
     if (eventIndex > -1) {
-      let task = new Task();
-      task.description = this.state.description;
-      task.time = new Date(this.state.time);
-      task.during = new Date(this.state.during);
-      task.reminder = new Date(this.state.reminder);
-      task.tags = this.state.tags;
-      this.state.events[eventIndex] = task;
+      this.state.events[eventIndex] = this.getFieldData();
     }
 
     this.setState({ open: false, edit: false, event: null });
@@ -140,34 +159,50 @@ class App extends Component {
               <AddIcon />
             </Button>
             </Grid>
-            <Grid item xs={12}>          
-              <List>
-                {this.state.events.map(event => {
-                  return (
-                    <ListItem key>
-                      <ListItemText primary="Descrição" secondary={event.description} />
-                      <ListItemText primary="Inicio da tarefa" secondary={event.time.toLocaleString() }/>
-                      <ListItemText primary="Duração da tarefa" secondary={event.during.toLocaleString() }/>
-                      <ListItemText primary="Lembrete" secondary={event.reminder.toLocaleString() }/>
-                      <ListItemText primary="Criado em" secondary={event.created.toLocaleString() }/>
-                      <ListItemSecondaryAction>
-                        <IconButton
-                          aria-label="Edit"
-                          onClick={() => this.handleOpenEdit(event)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          aria-label="Delete"
-                          onClick={() => this.handleDeleteEvent(event)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  );
-                })}
-              </List>
+            <Grid item xs={12}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Descrição</TableCell>
+                    <TableCell align="right">Inicio da tarefa</TableCell>
+                    <TableCell align="right">Duração da tarefa</TableCell>
+                    <TableCell align="right">Lembrete</TableCell>
+                    <TableCell align="right">Criado em</TableCell>
+                    <TableCell align="right"></TableCell>
+                    <TableCell align="right"></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+
+                  {this.state.events.map(event => {
+                    return (
+                      <TableRow key={event.id}>
+                        <TableCell component="th" scope="row">{event.description}</TableCell>
+                        <TableCell align="right" >{event.time.toLocaleString()}</TableCell>
+                        <TableCell align="right" >{event.during.toLocaleString()}</TableCell>
+                        <TableCell align="right" >{event.reminder.toLocaleString()}</TableCell>
+                        <TableCell align="right" >{event.created.toLocaleString()}</TableCell>
+                        <TableCell align="right" >
+                          <IconButton
+                            aria-label="Edit"
+                            onClick={() => this.handleOpenEdit(event)}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </TableCell>
+                        <TableCell align="right" >
+                          <IconButton
+                            aria-label="Delete"
+                            onClick={() => this.handleDeleteEvent(event)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </Grid>
           </Grid>
         </main>
