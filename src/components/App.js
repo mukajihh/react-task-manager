@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../assets/styles/App.css';
+import '../assets/styles/App.scss';
 import Button from '@material-ui/core/Button';
 import Task from '../models/task.model';
 import { AppBar, Toolbar, Typography, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Table, TableRow, TableBody, IconButton, Chip, InputAdornment, Grid, TableHead, TableCell } from '@material-ui/core';
@@ -148,8 +148,8 @@ class App extends Component {
         </AppBar>
 
         <main>
-          <Grid container spacing={24} justify="flex-end">
-            <Grid item xs={2}>
+          <Grid container spacing={0} justify="flex-end" className="grid-main">
+            <Grid item xs={2} className="new-task-btn" >
               <Button
                 variant="contained"
                 color="primary"
@@ -159,7 +159,7 @@ class App extends Component {
               <AddIcon />
             </Button>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} className="grid-table">
               <Table>
                 <TableHead>
                   <TableRow>

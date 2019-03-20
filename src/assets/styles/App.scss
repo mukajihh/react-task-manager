@@ -1,0 +1,30 @@
+main {
+  margin: 40px auto;
+  max-width: 1080px;
+}
+
+@media (max-width: 1080px) {
+  main {
+    & .grid-main {
+      padding: 0 20px;
+    }
+    
+    & .new-task-btn {
+      max-width: none;
+      margin-bottom: 40px
+    }
+    
+    & .grid-table {
+      overflow-x: auto;
+    }
+  }
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
